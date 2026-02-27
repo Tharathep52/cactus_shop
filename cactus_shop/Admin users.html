@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — จัดการผู้ใช้</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --sidebar-bg: #111318;
+    --surface: #181b22;
+    --surface2: #1e2230;
+    --border: #252a38;
+    --accent: #ff6b35;
+    --accent2: #00d4a8;
+    --admin-badge: #ff4757;
+    --user-badge: #2ed573;
+    --text: #e8eaf0;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --danger: #ef4444;
+    --edit: #3b82f6;
+    --font: 'IBM Plex Sans Thai', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .admin-badge-pill {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 107, 53, 0.12);
+    border: 1px solid rgba(255, 107, 53, 0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .admin-badge-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .nav-section {
+    padding: 12px 0;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 20px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(255, 107, 53, 0.08);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .topbar-breadcrumb span.current {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .admin-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 107, 53, 0.1);
+    border: 1px solid rgba(255, 107, 53, 0.25);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+
+  /* CONTENT */
+  .content {
+    padding: 32px;
+    flex: 1;
+  }
+
+  /* PAGE HEADER — ADMIN ZONE */
+  .admin-zone-header {
+    background: linear-gradient(135deg, #1a0a00 0%, #1e1208 50%, #0d0f14 100%);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .admin-zone-header::before {
+    content: 'ADMIN ZONE';
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 64px;
+    font-weight: 700;
+    color: rgba(255, 107, 53, 0.05);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .zone-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 107, 53, 0.15);
+    border: 1px solid rgba(255, 107, 53, 0.4);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    margin-bottom: 12px;
+  }
+
+  .zone-tag::before {
+    content: '🔒';
+    font-size: 10px;
+  }
+
+  .zone-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .zone-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .zone-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .zone-stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .zone-stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+
+  .zone-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* PANEL */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    gap: 10px;
+    flex: 1;
+    max-width: 360px;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus-within {
+    border-color: rgba(255, 107, 53, 0.4);
+  }
+
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-icon { color: var(--text-muted); font-size: 14px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 12px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+  tbody td {
+    padding: 16px 24px;
+    font-size: 13.5px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .avatar-admin {
+    background: rgba(255, 107, 53, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(255, 107, 53, 0.3);
+  }
+
+  .avatar-user {
+    background: rgba(0, 212, 168, 0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(0, 212, 168, 0.25);
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .user-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .email-text {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .role-admin {
+    background: rgba(255, 71, 87, 0.12);
+    color: #ff6b7a;
+    border: 1px solid rgba(255, 71, 87, 0.3);
+  }
+
+  .role-user {
+    background: rgba(46, 213, 115, 0.1);
+    color: #2ed573;
+    border: 1px solid rgba(46, 213, 115, 0.25);
+  }
+
+  .date-text {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+
+  .btn-edit {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+
+  .btn-edit:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+
+  .btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  .btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  .btn-add {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    padding: 9px 18px;
+  }
+
+  .btn-add:hover {
+    background: #e55a24;
+  }
+
+  /* ADMIN ROW HIGHLIGHT */
+  tbody tr.admin-row {
+    background: rgba(255, 107, 53, 0.03);
+  }
+
+  tbody tr.admin-row:hover {
+    background: rgba(255, 107, 53, 0.06);
+  }
+
+  /* ACCESS RESTRICTED WATERMARK */
+  .restricted-bar {
+    background: rgba(255, 71, 87, 0.06);
+    border: 1px solid rgba(255, 71, 87, 0.15);
+    border-radius: 8px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #ff6b7a;
+  }
+
+  .restricted-bar .icon { font-size: 16px; }
+  .restricted-bar strong { font-weight: 700; }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🌵</div>
+      <div class="logo-text">CactusShop</div>
+    </div>
+    <div class="admin-badge-pill">ADMIN ACCESS</div>
+  </div>
+
+  <nav class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">📊</span> Dashboard
+    </a>
+
+    <div class="nav-label">จัดการ</div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">📦</span> จัดการสินค้า
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">🛒</span> คำสั่งซื้อ
+    </a>
+
+    <div class="nav-label">Admin Only</div>
+    <a class="nav-item active" href="#">
+      <span class="nav-icon">👥</span> จัดการผู้ใช้
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">⚙️</span> ตั้งค่า
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    สวัสดี, <strong>admin</strong>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-breadcrumb">
+      <span>CactusShop</span>
+      <span>›</span>
+      <span>Admin</span>
+      <span>›</span>
+      <span class="current">จัดการผู้ใช้</span>
+    </div>
+    <div class="topbar-right">
+      <div class="admin-chip">🔑 ADMIN SESSION</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ADMIN ZONE HEADER -->
+    <div class="admin-zone-header">
+      <div class="zone-tag">ADMIN RESTRICTED AREA</div>
+      <div class="zone-title">จัดการผู้ใช้</div>
+      <div class="zone-subtitle">ส่วนนี้เข้าถึงได้เฉพาะผู้ดูแลระบบเท่านั้น · เปลี่ยนแปลงข้อมูลจะมีผลทันที</div>
+      <div class="zone-stats">
+        <div class="zone-stat">
+          <div class="zone-stat-num">2</div>
+          <div class="zone-stat-label">ผู้ใช้ทั้งหมด</div>
+        </div>
+        <div class="zone-stat">
+          <div class="zone-stat-num">1</div>
+          <div class="zone-stat-label">ผู้ดูแลระบบ</div>
+        </div>
+        <div class="zone-stat">
+          <div class="zone-stat-num">1</div>
+          <div class="zone-stat-label">ผู้ใช้ทั่วไป</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESTRICTED NOTICE -->
+    <div class="restricted-bar">
+      <span class="icon">⚠️</span>
+      <span><strong>หน้าสำหรับ Admin เท่านั้น</strong> — การดำเนินการทุกอย่างในหน้านี้จะถูกบันทึกไว้ในระบบ log</span>
+    </div>
+
+    <!-- PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          👥 รายชื่อผู้ใช้ทั้งหมด
+        </div>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="ค้นหาผู้ใช้..." id="searchInput" oninput="filterUsers()">
+        </div>
+        <button class="btn btn-add">+ เพิ่มผู้ใช้</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="userTable">
+          <thead>
+            <tr>
+              <th>ชื่อผู้ใช้</th>
+              <th>อีเมล</th>
+              <th>ประเภท</th>
+              <th>วันที่สมัคร</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="admin-row" data-name="admin">
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar avatar-admin">A</div>
+                  <div>
+                    <div class="user-name">admin</div>
+                    <div class="user-id">#USR-0001</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="email-text">admin@cactusshop.com</span></td>
+              <td><span class="role-badge role-admin">🔑 ผู้ดูแล</span></td>
+              <td><span class="date-text">20/02/2569</span></td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-edit">✏️ แก้ไข</button>
+                  <button class="btn btn-delete">🗑 ลบ</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-name="shi">
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar avatar-user">S</div>
+                  <div>
+                    <div class="user-name">shi</div>
+                    <div class="user-id">#USR-0002</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="email-text">68319100008@wpptech.ac.th</span></td>
+              <td><span class="role-badge role-user">👤 ผู้ใช้</span></td>
+              <td><span class="date-text">20/02/2569</span></td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-edit">✏️ แก้ไข</button>
+                  <button class="btn btn-delete">🗑 ลบ</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function filterUsers() {
+  const val = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('#userTable tbody tr').forEach(row => {
+    const name = row.dataset.name || '';
+    row.style.display = name.includes(val) ? '' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>

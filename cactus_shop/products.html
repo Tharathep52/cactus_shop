@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สินค้าทั้งหมด | 🌵 Cactus Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #c8e6c9 0%, #81c784 50%, #66bb6a 100%);
+        }
+
+        /* Header */
+        .products-header {
+            background: linear-gradient(135deg, #66bb6a 0%, #4caf50 50%, #388e3c 100%);
+            color: white;
+            padding: 2rem 5%;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .products-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        /* Navigation */
+        .top-nav {
+            background: white;
+            padding: 1rem 5%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-home {
+            background-color: #388e3c;
+            color: white;
+        }
+
+        .btn-back {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-cart {
+            background-color: #4caf50;
+            color: white;
+            position: relative;
+            margin-left: auto;
+        }
+
+        .btn-logout {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: #f8f9fa;
+            padding: 2rem 5%;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .search-box-container {
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #4caf50;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-box:focus {
+            border-color: #66bb6a;
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .category-btn {
+            padding: 10px 24px;
+            background: white;
+            border: 2px solid #4caf50;
+            border-radius: 25px;
+            color: #4caf50;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: #4caf50;
+            color: white;
+        }
+
+        /* Products Container */
+        .products-container {
+            padding: 3rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .products-info {
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(46, 204, 113, 0.25);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-category-tag {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #4caf50;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .product-info h3 {
+            color: #388e3c;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .product-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            max-height: 60px;
+            overflow: hidden;
+        }
+
+        .product-price {
+            color: #4caf50;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-stock {
+            color: #95a5a6;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-stock.low-stock {
+            color: #e74c3c;
+        }
+
+        .product-stock.out-of-stock {
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4caf50, #229954);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-to-cart-btn:hover {
+            background: linear-gradient(135deg, #229954, #1e8449);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .add-to-cart-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .add-to-cart-btn i {
+            font-size: 18px;
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #7f8c8d;
+            display: none;
+        }
+
+        .no-results i {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #7f8c8d;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4caf50, #229954);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.4s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .products-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .top-nav {
+                justify-content: center;
+            }
+
+            .btn-cart {
+                margin-left: 0;
+            }
+        }
+    
+        .decorative-cactus {
+            position: fixed;
+            font-size: 4rem;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .decorative-cactus:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation: float-cactus 4s ease-in-out infinite;
+        }
+        .decorative-cactus:nth-child(2) {
+            top: 60%;
+            right: 8%;
+            animation: float-cactus 5s ease-in-out infinite 1s;
+        }
+        .decorative-cactus:nth-child(3) {
+            bottom: 15%;
+            left: 10%;
+            animation: float-cactus 6s ease-in-out infinite 2s;
+        }
+        @keyframes float-cactus {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-12px) rotate(5deg); }
+        }
+</style>
+</head>
+<body>
+    <div class="decorative-cactus">🌵</div>
+    <div class="decorative-cactus">🌵</div>
+    <div class="decorative-cactus">🌵</div>
+
+    <div class="products-header">
+        <h1>🌵 สินค้าทั้งหมด</h1>
+        <p>ค้นหาและเลือกซื้อแคคตัสและไม้อวบน้ำที่คุณชื่นชอบ</p>
+        <p class="user-info" id="user-info"></p>
+    </div>
+
+    <div class="top-nav">
+        <button onclick="location.href='index.php'" class="nav-btn btn-home">
+            <i class="fas fa-home"></i> หน้าหลัก
+        </button>
+        <button onclick="goToCart()" class="nav-btn btn-cart">
+            <i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า
+            <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+        </button>
+        <button onclick="logout()" class="nav-btn btn-logout" id="logout-btn" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+
+    <div class="search-filter-section">
+        <div class="search-box-container">
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 ค้นหาสินค้า...">
+        </div>
+        <div class="category-filters" id="category-filters">
+            <button class="category-btn active" data-category="all">
+                <i class="fas fa-th"></i> ทั้งหมด
+            </button>
+        </div>
+    </div>
+
+    <div class="products-container">
+        <div class="products-info">
+            <span id="productsCount">กำลังโหลดสินค้า...</span>
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner"></i>
+            <p>กำลังโหลดสินค้า...</p>
+        </div>
+
+        <div class="products-grid" id="products-grid">
+            <!-- Products will be loaded dynamically -->
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>ไม่พบสินค้าที่ค้นหา</h3>
+            <p>ลองค้นหาด้วยคำอื่น หรือเลือกหมวดหมู่ที่ต่างกัน</p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        // =============== ระบบการตรวจสอบและแสดงผล ===============
+        
+        // ตรวจสอบการล็อกอิน
+        function checkLogin() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const username = localStorage.getItem('username');
+            const userRole = localStorage.getItem('userRole');
+            return { isLoggedIn, username, userRole };
+        }
+
+        // แสดงข้อมูลผู้ใช้
+        function displayUserInfo() {
+            const loginStatus = checkLogin();
+            const userInfo = document.getElementById('user-info');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (loginStatus.isLoggedIn) {
+                userInfo.textContent = `👋 สวัสดี, ${loginStatus.username}`;
+                logoutBtn.style.display = 'flex';
+            } else {
+                userInfo.textContent = '';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        // ออกจากระบบ
+        function logout() {
+            if (confirm('ต้องการออกจากระบบหรือไม่?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('cart');
+                
+                showToast('ออกจากระบบเรียบร้อย');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.php';
+                }, 1000);
+            }
+        }
+
+        // =============== ระบบจัดการสินค้า ===============
+
+        // โหลดสินค้าจาก localStorage
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const productsGrid = document.getElementById('products-grid');
+            const loading = document.getElementById('loading');
+            const productsCount = document.getElementById('productsCount');
+
+            // ซ่อน loading
+            loading.style.display = 'none';
+
+            if (products.length === 0) {
+                productsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #7f8c8d;">
+                        <i class="fas fa-box-open" style="font-size: 5rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
+                        <h3>ยังไม่มีสินค้าในระบบ</h3>
+                        <p>กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มสินค้า</p>
+                    </div>
+                `;
+                productsCount.textContent = 'ไม่มีสินค้า';
+                return;
+            }
+
+            // สร้างหมวดหมู่แบบไดนามิก
+            const categories = [...new Set(products.map(p => p.category))];
+            createCategoryFilters(categories);
+
+            // แสดงสินค้า
+            productsGrid.innerHTML = '';
+            products.forEach(product => {
+                const card = createProductCard(product);
+                productsGrid.appendChild(card);
+            });
+
+            productsCount.textContent = `แสดงสินค้า ${products.length} รายการ`;
+        }
+
+        // สร้างหมวดหมู่แบบไดนามิก
+        function createCategoryFilters(categories) {
+            const filtersContainer = document.getElementById('category-filters');
+            
+            // เคลียร์หมวดหมู่เก่า (เว้นปุ่มทั้งหมด)
+            const allButton = filtersContainer.querySelector('[data-category="all"]');
+            filtersContainer.innerHTML = '';
+            filtersContainer.appendChild(allButton);
+
+            // เพิ่มหมวดหมู่ใหม่
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.setAttribute('data-category', category);
+                button.innerHTML = `<i class="fas fa-tag"></i> ${category}`;
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = category;
+                    filterProducts();
+                });
+                filtersContainer.appendChild(button);
+            });
+        }
+
+        // สร้างการ์ดสินค้า
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-category', product.category);
+            card.setAttribute('data-name', product.name.toLowerCase());
+
+            const stockStatus = product.stock === 0 ? 'out-of-stock' : (product.stock < 5 ? 'low-stock' : '');
+            const stockText = product.stock === 0 ? 'สินค้าหมด' : `เหลือ ${product.stock} ชิ้น`;
+
+            card.innerHTML = `
+                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                <div class="product-info">
+                    <span class="product-category-tag">${product.category}</span>
+                    <h3>${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-price">฿${product.price.toLocaleString()}</div>
+                    <div class="product-stock ${stockStatus}">${stockText}</div>
+                    <button class="add-to-cart-btn" 
+                        data-id="${product.id}" 
+                        data-name="${product.name}" 
+                        data-price="${product.price}"
+                        data-image="${product.image}"
+                        ${product.stock === 0 ? 'disabled' : ''}
+                        onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.image}')">
+                        <i class="fas fa-cart-plus"></i> ${product.stock === 0 ? 'สินค้าหมด' : 'เพิ่มลงตะกร้า'}
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // =============== ระบบตะกร้าสินค้า ===============
+
+        // ไปหน้าตะกร้า
+        function goToCart() {
+            const loginStatus = checkLogin();
+            
+            if (!loginStatus.isLoggedIn) {
+                alert('⚠️ กรุณาเข้าสู่ระบบก่อนดูตะกร้าสินค้า\n\nคุณจะถูกนำไปยังหน้าล็อกอิน');
+                window.location.href = 'login.php';
+                return;
+            }
+            
+            window.location.href = 'order.html';
+        }
+
+        // เพิ่มสินค้าลงตะกร้า
+        function addToCart(productId, productName, productPrice, productImage) {
+            const loginStatus = checkLogin();
+            
+            if (!loginStatus.isLoggedIn) {
+                alert('⚠️ กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า\n\nคุณจะถูกนำไปยังหน้าล็อกอิน');
+                window.location.href = 'login.php';
+                return;
+            }
+
+            // ตรวจสอบสต็อก
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.id == productId);
+            
+            if (!product || product.stock === 0) {
+                showToast('⚠️ สินค้าหมดแล้ว');
+                return;
+            }
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingProduct = cart.find(item => item.id == productId);
+            
+            // ตรวจสอบจำนวนในตะกร้าไม่เกินสต็อก
+            if (existingProduct) {
+                if (existingProduct.quantity >= product.stock) {
+                    showToast(`⚠️ ไม่สามารถเพิ่มได้ เหลือสต็อกเพียง ${product.stock} ชิ้น`);
+                    return;
+                }
+                existingProduct.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: parseFloat(productPrice),
+                    image: productImage,
+                    quantity: 1
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            showToast(`✓ เพิ่ม "${productName}" ลงตะกร้าแล้ว`);
+            updateCartBadge();
+        }
+
+        // อัพเดทจำนวนในตะกร้า
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const badge = document.getElementById('cart-badge');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (badge) {
+                badge.textContent = totalItems;
+                badge.style.display = totalItems > 0 ? 'block' : 'none';
+            }
+        }
+
+        // แสดง Toast
+        let toastTimeout = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+
+            if (toast.classList.contains('show')) {
+                clearTimeout(toastTimeout);
+            } else {
+                toast.classList.add('show');
+            }
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+        }
+
+        // =============== ระบบค้นหาและกรอง ===============
+
+        let currentCategory = 'all';
+        const searchInput = document.getElementById('searchInput');
+
+        function filterProducts() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const productCards = document.querySelectorAll('.product-card');
+            const productsCount = document.getElementById('productsCount');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+
+            productCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const name = card.getAttribute('data-name');
+
+                const matchCategory = currentCategory === 'all' || category === currentCategory;
+                const matchSearch = searchTerm === '' || name.includes(searchTerm);
+
+                if (matchCategory && matchSearch) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (visibleCount > 0) {
+                productsCount.textContent = `แสดงสินค้า ${visibleCount} รายการ`;
+                noResults.style.display = 'none';
+            } else {
+                productsCount.textContent = 'ไม่พบสินค้า';
+                noResults.style.display = 'block';
+            }
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', filterProducts);
+
+        // =============== เริ่มต้นระบบ ===============
+
+        window.addEventListener('DOMContentLoaded', function() {
+            displayUserInfo();
+            loadProducts();
+            updateCartBadge();
+        });
+
+        // รีโหลดสินค้าเมื่อมีการเปลี่ยนแปลง
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'products') {
+                loadProducts();
+            }
+            if (e.key === 'cart') {
+                updateCartBadge();
+            }
+        });
+    </script>
+</body>
+</html>

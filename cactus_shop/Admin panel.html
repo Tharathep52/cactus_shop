@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CactusShop — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --sidebar-bg: #111318;
+  --surface: #181b22;
+  --surface2: #1e2230;
+  --border: #252a38;
+  --accent: #ff6b35;
+  --accent2: #00d4a8;
+  --text: #e8eaf0;
+  --text-muted: #6b7280;
+  --text-dim: #9ca3af;
+  --danger: #ef4444;
+  --success: #2ed573;
+  --warning: #ffa502;
+  --blue: #3b82f6;
+  --font: 'IBM Plex Sans Thai', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 220px; background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; height: 100vh; z-index: 100; overflow-y: auto;
+}
+.sidebar-logo { padding: 22px 20px 18px; border-bottom: 1px solid var(--border); }
+.logo-mark { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.logo-text { font-size: 15px; font-weight: 700; }
+.admin-badge-pill {
+  margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,107,53,.12); border: 1px solid rgba(255,107,53,.3);
+  border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--accent); font-weight: 600;
+}
+.admin-badge-pill::before { content:''; width:6px; height:6px; background:var(--accent); border-radius:50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.nav-section { padding: 10px 0; flex: 1; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text-muted); letter-spacing: .12em; text-transform: uppercase; padding: 8px 20px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+  color: var(--text-dim); text-decoration: none; font-size: 13.5px;
+  cursor: pointer; transition: all .15s; border-left: 3px solid transparent;
+  border: none; background: none; width: 100%; text-align: left; font-family: var(--font);
+}
+.nav-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+.nav-item.active { color: var(--accent); background: rgba(255,107,53,.08); border-left: 3px solid var(--accent); font-weight: 500; }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+
+/* ─── MAIN ─── */
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  background: var(--sidebar-bg); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 56px; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 50;
+}
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.breadcrumb .current { color: var(--text); font-weight: 500; }
+.admin-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,107,53,.1); border: 1px solid rgba(255,107,53,.25);
+  border-radius: 6px; padding: 5px 12px; font-size: 12px; color: var(--accent);
+  font-weight: 600; font-family: var(--mono);
+}
+
+/* ─── CONTENT ─── */
+.content { padding: 28px 32px; flex: 1; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── PAGE HEADER ─── */
+.page-header {
+  background: linear-gradient(135deg, #1a0a00, #1e1208 50%, #0d0f14);
+  border: 1px solid rgba(255,107,53,.2); border-radius: 12px;
+  padding: 24px 28px; margin-bottom: 24px; position: relative; overflow: hidden;
+}
+.page-header::after {
+  content: attr(data-bg-text); position: absolute; right: 20px; top: 50%;
+  transform: translateY(-50%); font-family: var(--mono); font-size: 56px;
+  font-weight: 700; color: rgba(255,107,53,.05); pointer-events: none; white-space: nowrap;
+}
+.zone-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,107,53,.15); border: 1px solid rgba(255,107,53,.4);
+  border-radius: 4px; padding: 3px 10px; font-size: 10px; font-weight: 700;
+  color: var(--accent); font-family: var(--mono); letter-spacing: .1em; margin-bottom: 10px;
+}
+.page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--text-muted); }
+.header-stats { display: flex; gap: 28px; margin-top: 18px; }
+.hstat-num { font-size: 22px; font-weight: 700; font-family: var(--mono); color: var(--accent); }
+.hstat-label { font-size: 11px; color: var(--text-muted); }
+
+/* ─── PANELS ─── */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.panel-header {
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.panel-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+
+/* ─── SEARCH ─── */
+.search-box {
+  display: flex; align-items: center; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px;
+  gap: 8px; flex: 1; max-width: 320px; transition: border-color .2s;
+}
+.search-box:focus-within { border-color: rgba(255,107,53,.4); }
+.search-box input { background: none; border: none; outline: none; font-family: var(--font); font-size: 13px; color: var(--text); flex: 1; }
+.search-box input::placeholder { color: var(--text-muted); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid; font-family: var(--font); transition: all .15s; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: #e55a24; }
+.btn-edit { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.3); color: #60a5fa; }
+.btn-edit:hover { background: rgba(59,130,246,.2); }
+.btn-delete { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #f87171; }
+.btn-delete:hover { background: rgba(239,68,68,.2); }
+.btn-success { background: rgba(46,213,115,.1); border-color: rgba(46,213,115,.3); color: #2ed573; }
+.btn-success:hover { background: rgba(46,213,115,.2); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-ghost { background: transparent; border-color: var(--border); color: var(--text-dim); }
+.btn-ghost:hover { background: rgba(255,255,255,.05); color: var(--text); }
+
+/* ─── TABLE ─── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 11px 20px; text-align: left; font-size: 10.5px; font-weight: 600;
+  color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase;
+  background: rgba(255,255,255,.02); border-bottom: 1px solid var(--border); font-family: var(--mono);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,.02); }
+tbody td { padding: 14px 20px; font-size: 13.5px; vertical-align: middle; }
+
+/* ─── BADGES ─── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-admin { background: rgba(255,71,87,.12); color: #ff6b7a; border: 1px solid rgba(255,71,87,.3); }
+.badge-user { background: rgba(46,213,115,.1); color: #2ed573; border: 1px solid rgba(46,213,115,.25); }
+.badge-pending { background: rgba(255,165,2,.12); color: #ffa502; border: 1px solid rgba(255,165,2,.3); }
+.badge-done { background: rgba(46,213,115,.1); color: #2ed573; border: 1px solid rgba(46,213,115,.25); }
+.badge-cancel { background: rgba(239,68,68,.1); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+.badge-shipping { background: rgba(59,130,246,.1); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+
+/* ─── DASHBOARD CARDS ─── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; position: relative; overflow: hidden; transition: border-color .2s;
+}
+.stat-card:hover { border-color: rgba(255,107,53,.3); }
+.stat-card-icon { font-size: 28px; margin-bottom: 10px; }
+.stat-card-num { font-size: 28px; font-weight: 700; font-family: var(--mono); color: var(--text); }
+.stat-card-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.stat-card-change { font-size: 11px; font-family: var(--mono); margin-top: 8px; }
+.change-up { color: var(--success); }
+.change-dn { color: var(--danger); }
+
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+/* ─── MINI CHART ─── */
+.mini-chart { padding: 20px; }
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
+.bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.bar { background: var(--accent); border-radius: 4px 4px 0 0; width: 100%; opacity: .7; transition: opacity .2s; min-height: 4px; }
+.bar:hover { opacity: 1; }
+.bar-label { font-size: 9px; color: var(--text-muted); font-family: var(--mono); }
+
+.recent-orders-mini { padding: 20px; }
+.order-row-mini { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.order-row-mini:last-child { border-bottom: none; }
+
+/* ─── AVATAR ─── */
+.avatar { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.av-admin { background: rgba(255,107,53,.15); color: var(--accent); border: 1px solid rgba(255,107,53,.3); }
+.av-user { background: rgba(0,212,168,.1); color: var(--accent2); border: 1px solid rgba(0,212,168,.25); }
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.u-name { font-weight: 600; font-size: 13.5px; }
+.u-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+/* ─── PRODUCT CARD ─── */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; padding: 20px; }
+.prod-card {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; transition: border-color .2s, transform .15s;
+}
+.prod-card:hover { border-color: rgba(255,107,53,.35); transform: translateY(-2px); }
+.prod-img {
+  height: 130px; display: flex; align-items: center; justify-content: center;
+  font-size: 52px; background: rgba(255,107,53,.05); border-bottom: 1px solid var(--border);
+}
+.prod-info { padding: 14px; }
+.prod-name { font-size: 13.5px; font-weight: 600; margin-bottom: 4px; }
+.prod-price { font-family: var(--mono); font-size: 15px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+.prod-stock { font-size: 11px; color: var(--text-muted); }
+.prod-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+  z-index: 999; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 28px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  animation: slideUp .2s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+.modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+.modal-close:hover { color: var(--text); background: rgba(255,255,255,.05); }
+
+/* ─── FORM ─── */
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: .06em; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; font-family: var(--font); font-size: 13.5px;
+  color: var(--text); outline: none; transition: border-color .2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: rgba(255,107,53,.5); }
+.form-select { appearance: none; cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+
+/* ─── ORDERS ─── */
+.order-detail-row { background: rgba(255,107,53,.03); }
+.actions { display: flex; gap: 6px; }
+
+/* ─── SETTINGS ─── */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.settings-section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.toggle-info { font-size: 13px; }
+.toggle-label { color: var(--text); font-weight: 500; }
+.toggle-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.toggle { position: relative; width: 40px; height: 22px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: var(--border); border-radius: 22px; cursor: pointer; transition: .3s; }
+.slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+input:checked + .slider { background: var(--accent); }
+input:checked + .slider:before { transform: translateX(18px); }
+
+/* ─── TOAST ─── */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 18px; font-size: 13px; display: flex; align-items: center; gap: 10px;
+  animation: toastIn .3s ease; min-width: 250px; box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.toast.success { border-color: rgba(46,213,115,.4); }
+.toast.danger { border-color: rgba(239,68,68,.4); }
+@keyframes toastIn { from{transform:translateX(40px);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes toastOut { to{transform:translateX(40px);opacity:0} }
+
+/* ─── CONFIRM DIALOG ─── */
+.confirm-modal { width: 360px; text-align: center; }
+.confirm-icon { font-size: 44px; margin-bottom: 14px; }
+.confirm-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.confirm-msg { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* ─── MISC ─── */
+.mono { font-family: var(--mono); }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+.restricted-bar {
+  background: rgba(255,71,87,.06); border: 1px solid rgba(255,71,87,.15);
+  border-radius: 8px; padding: 11px 18px; display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px; font-size: 13px; color: #ff6b7a;
+}
+tr.admin-row { background: rgba(255,107,53,.03); }
+tr.admin-row:hover { background: rgba(255,107,53,.06) !important; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🌵</div>
+      <div class="logo-text">CactusShop</div>
+    </div>
+    <div class="admin-badge-pill">ADMIN ACCESS</div>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <div class="nav-label">จัดการ</div>
+    <button class="nav-item" onclick="navigate('products')">
+      <span class="nav-icon">📦</span> จัดการสินค้า
+    </button>
+    <button class="nav-item" onclick="navigate('orders')">
+      <span class="nav-icon">🛒</span> คำสั่งซื้อ
+    </button>
+    <div class="nav-label">Admin Only</div>
+    <button class="nav-item" onclick="navigate('users')">
+      <span class="nav-icon">👥</span> จัดการผู้ใช้
+    </button>
+    <button class="nav-item" onclick="navigate('settings')">
+      <span class="nav-icon">⚙️</span> ตั้งค่า
+    </button>
+  </nav>
+  <div class="sidebar-footer">สวัสดี, <strong>admin</strong></div>
+</aside>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>CactusShop</span><span>›</span><span>Admin</span><span>›</span>
+      <span class="current" id="breadcrumb-current">Dashboard</span>
+    </div>
+    <div class="admin-chip">🔑 ADMIN SESSION</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header" data-bg-text="DASHBOARD">
+        <div class="zone-tag">📊 OVERVIEW</div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">ภาพรวมของร้านค้าทั้งหมด · อัปเดตแบบเรียลไทม์</div>
+        <div class="header-stats">
+          <div><div class="hstat-num" id="ds-total-revenue">฿24,850</div><div class="hstat-label">รายได้รวม</div></div>
+          <div><div class="hstat-num" id="ds-orders">18</div><div class="hstat-label">คำสั่งซื้อวันนี้</div></div>
+          <div><div class="hstat-num" id="ds-products">12</div><div class="hstat-label">สินค้าทั้งหมด</div></div>
+          <div><div class="hstat-num" id="ds-users">2</div><div class="hstat-label">ผู้ใช้</div></div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon">💰</div>
+          <div class="stat-card-num" id="sc-revenue">฿24,850</div>
+          <div class="stat-card-label">รายได้ทั้งหมด</div>
+          <div class="stat-card-change change-up">▲ 12.4% จากเดือนที่แล้ว</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🛒</div>
+          <div class="stat-card-num" id="sc-orders">18</div>
+          <div class="stat-card-label">คำสั่งซื้อวันนี้</div>
+          <div class="stat-card-change change-up">▲ 3 จากเมื่อวาน</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">📦</div>
+          <div class="stat-card-num" id="sc-products">12</div>
+          <div class="stat-card-label">สินค้าทั้งหมด</div>
+          <div class="stat-card-change change-up">▲ 2 ชิ้นใหม่</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">👥</div>
+          <div class="stat-card-num" id="sc-users">2</div>
+          <div class="stat-card-label">ผู้ใช้ทั้งหมด</div>
+          <div class="stat-card-change change-up">▲ 1 ใหม่วันนี้</div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="panel">
+          <div class="mini-chart">
+            <div class="chart-title">📈 ยอดขาย 7 วันล่าสุด</div>
+            <div class="bars" id="sales-chart"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="recent-orders-mini">
+            <div class="chart-title">🕐 คำสั่งซื้อล่าสุด</div>
+            <div id="recent-orders-mini"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">🔥 สินค้าขายดี</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ชื่อสินค้า</th><th>ราคา</th><th>ขายแล้ว</th><th>คงเหลือ</th></tr></thead>
+            <tbody id="top-products-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PRODUCTS ══ -->
+    <div id="page-products" class="page">
+      <div class="page-header" data-bg-text="PRODUCTS">
+        <div class="zone-tag">📦 CATALOG</div>
+        <div class="page-title">จัดการสินค้า</div>
+        <div class="page-sub">เพิ่ม แก้ไข และลบสินค้าในร้านค้าของคุณ</div>
+        <div class="header-stats">
+          <div><div class="hstat-num" id="ph-total">12</div><div class="hstat-label">สินค้าทั้งหมด</div></div>
+          <div><div class="hstat-num" id="ph-instock">10</div><div class="hstat-label">มีสต็อก</div></div>
+          <div><div class="hstat-num" id="ph-lowstock">2</div><div class="hstat-label">สต็อกใกล้หมด</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📦 รายการสินค้า</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" placeholder="ค้นหาสินค้า..." id="product-search" oninput="renderProducts()">
+            </div>
+            <button class="btn btn-primary" onclick="openProductModal()">+ เพิ่มสินค้า</button>
+          </div>
+        </div>
+        <div class="product-grid" id="product-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══ ORDERS ══ -->
+    <div id="page-orders" class="page">
+      <div class="page-header" data-bg-text="ORDERS">
+        <div class="zone-tag">🛒 ORDERS</div>
+        <div class="page-title">คำสั่งซื้อ</div>
+        <div class="page-sub">ติดตามและจัดการคำสั่งซื้อทั้งหมด</div>
+        <div class="header-stats">
+          <div><div class="hstat-num" id="oh-total">18</div><div class="hstat-label">ทั้งหมด</div></div>
+          <div><div class="hstat-num" id="oh-pending">5</div><div class="hstat-label">รอดำเนินการ</div></div>
+          <div><div class="hstat-num" id="oh-shipping">7</div><div class="hstat-label">กำลังจัดส่ง</div></div>
+          <div><div class="hstat-num" id="oh-done">6</div><div class="hstat-label">สำเร็จ</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🛒 รายการคำสั่งซื้อ</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" placeholder="ค้นหาคำสั่งซื้อ..." id="order-search" oninput="renderOrders()">
+            </div>
+            <select class="form-select" style="width:150px;padding:7px 12px" id="order-filter" onchange="renderOrders()">
+              <option value="">ทุกสถานะ</option>
+              <option value="pending">รอดำเนินการ</option>
+              <option value="shipping">กำลังจัดส่ง</option>
+              <option value="done">สำเร็จ</option>
+              <option value="cancel">ยกเลิก</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>เลขที่คำสั่งซื้อ</th><th>ลูกค้า</th><th>สินค้า</th>
+                <th>ราคารวม</th><th>วันที่</th><th>สถานะ</th><th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ USERS ══ -->
+    <div id="page-users" class="page">
+      <div class="page-header" data-bg-text="USERS">
+        <div class="zone-tag">🔒 ADMIN RESTRICTED</div>
+        <div class="page-title">จัดการผู้ใช้</div>
+        <div class="page-sub">ส่วนนี้เข้าถึงได้เฉพาะผู้ดูแลระบบ · การเปลี่ยนแปลงมีผลทันที</div>
+        <div class="header-stats">
+          <div><div class="hstat-num" id="uh-total">2</div><div class="hstat-label">ผู้ใช้ทั้งหมด</div></div>
+          <div><div class="hstat-num" id="uh-admin">1</div><div class="hstat-label">ผู้ดูแล</div></div>
+          <div><div class="hstat-num" id="uh-user">1</div><div class="hstat-label">ผู้ใช้ทั่วไป</div></div>
+        </div>
+      </div>
+      <div class="restricted-bar">⚠️ <strong>Admin Only</strong> — การดำเนินการทุกอย่างจะถูกบันทึกใน system log</div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">👥 รายชื่อผู้ใช้</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" placeholder="ค้นหาผู้ใช้..." id="user-search" oninput="renderUsers()">
+            </div>
+            <button class="btn btn-primary" onclick="openUserModal()">+ เพิ่มผู้ใช้</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ชื่อผู้ใช้</th><th>อีเมล</th><th>ประเภท</th><th>วันที่สมัคร</th><th>จัดการ</th></tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div id="page-settings" class="page">
+      <div class="page-header" data-bg-text="SETTINGS">
+        <div class="zone-tag">⚙️ CONFIG</div>
+        <div class="page-title">ตั้งค่าระบบ</div>
+        <div class="page-sub">กำหนดค่าต่าง ๆ ของร้านค้าและระบบ</div>
+      </div>
+      <div class="settings-grid">
+        <!-- Shop Info -->
+        <div class="panel" style="padding:22px">
+          <div class="settings-section-title">🏪 ข้อมูลร้านค้า</div>
+          <div class="form-group">
+            <label class="form-label">ชื่อร้านค้า</label>
+            <input class="form-input" id="set-shop-name" value="CactusShop">
+          </div>
+          <div class="form-group">
+            <label class="form-label">คำอธิบาย</label>
+            <textarea class="form-textarea" id="set-shop-desc">ร้านจำหน่ายต้นไม้และแคคตัส</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">อีเมลติดต่อ</label>
+            <input class="form-input" id="set-email" value="admin@cactusshop.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">เบอร์โทร</label>
+            <input class="form-input" id="set-phone" value="02-xxx-xxxx">
+          </div>
+          <button class="btn btn-primary" onclick="saveShopSettings()">💾 บันทึก</button>
+        </div>
+
+        <!-- Order Settings -->
+        <div class="panel" style="padding:22px">
+          <div class="settings-section-title">🛒 ตั้งค่าคำสั่งซื้อ</div>
+          <div class="form-group">
+            <label class="form-label">ค่าจัดส่งมาตรฐาน (บาท)</label>
+            <input class="form-input" id="set-shipping" type="number" value="50">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ขั้นต่ำฟรีค่าจัดส่ง (บาท)</label>
+            <input class="form-input" id="set-free-shipping" type="number" value="500">
+          </div>
+          <div class="form-group">
+            <label class="form-label">สกุลเงิน</label>
+            <select class="form-select" id="set-currency">
+              <option value="THB" selected>บาท (THB)</option>
+              <option value="USD">ดอลลาร์ (USD)</option>
+            </select>
+          </div>
+          <div class="settings-section-title" style="margin-top:18px">🔔 การแจ้งเตือน</div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">แจ้งเตือนคำสั่งซื้อใหม่</div>
+              <div class="toggle-desc">รับอีเมลเมื่อมีออเดอร์ใหม่</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked id="notif-orders"><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">แจ้งเตือนสต็อกต่ำ</div>
+              <div class="toggle-desc">เตือนเมื่อสินค้าคงเหลือน้อย</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked id="notif-stock"><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">โหมดบำรุงรักษา</div>
+              <div class="toggle-desc">ปิดหน้าร้านชั่วคราว</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="maintenance"><span class="slider"></span></label>
+          </div>
+          <button class="btn btn-primary" style="margin-top:16px" onclick="saveOrderSettings()">💾 บันทึก</button>
+        </div>
+
+        <!-- Security -->
+        <div class="panel" style="padding:22px">
+          <div class="settings-section-title">🔐 ความปลอดภัย</div>
+          <div class="form-group">
+            <label class="form-label">รหัสผ่านปัจจุบัน</label>
+            <input class="form-input" type="password" placeholder="••••••••" id="set-old-pass">
+          </div>
+          <div class="form-group">
+            <label class="form-label">รหัสผ่านใหม่</label>
+            <input class="form-input" type="password" placeholder="••••••••" id="set-new-pass">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ยืนยันรหัสผ่านใหม่</label>
+            <input class="form-input" type="password" placeholder="••••••••" id="set-confirm-pass">
+          </div>
+          <button class="btn btn-primary" onclick="changePassword()">🔑 เปลี่ยนรหัสผ่าน</button>
+        </div>
+
+        <!-- System Info -->
+        <div class="panel" style="padding:22px">
+          <div class="settings-section-title">🖥️ ข้อมูลระบบ</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-muted)">เวอร์ชัน</span><span class="mono">v1.0.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-muted)">ฐานข้อมูล</span><span class="mono">MySQL 8.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-muted)">PHP</span><span class="mono">8.2.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-muted)">วันที่ติดตั้ง</span><span class="mono">20/02/2569</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0">
+              <span style="color:var(--text-muted)">เซิร์ฟเวอร์</span><span class="mono">localhost</span>
+            </div>
+          </div>
+          <button class="btn btn-ghost" style="margin-top:16px;width:100%" onclick="showToast('กำลังล้างแคช...','✅')">🗑️ ล้างแคช</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="product-modal-title">➕ เพิ่มสินค้า</span>
+      <button class="modal-close" onclick="closeModal('product-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ชื่อสินค้า</label>
+      <input class="form-input" id="pm-name" placeholder="ชื่อสินค้า">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">ราคา (บาท)</label>
+        <input class="form-input" id="pm-price" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">จำนวนสต็อก</label>
+        <input class="form-input" id="pm-stock" type="number" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">หมวดหมู่</label>
+      <select class="form-select" id="pm-category">
+        <option value="cactus">🌵 แคคตัส</option>
+        <option value="succulent">🪴 ซัคคูเลนต์</option>
+        <option value="tropical">🌿 ต้นไม้เมืองร้อน</option>
+        <option value="accessory">🪣 อุปกรณ์</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">คำอธิบาย</label>
+      <textarea class="form-textarea" id="pm-desc" placeholder="รายละเอียดสินค้า..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ไอคอน (Emoji)</label>
+      <input class="form-input" id="pm-icon" placeholder="🌵" maxlength="4">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('product-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="user-modal-title">➕ เพิ่มผู้ใช้</span>
+      <button class="modal-close" onclick="closeModal('user-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ชื่อผู้ใช้</label>
+      <input class="form-input" id="um-name" placeholder="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">อีเมล</label>
+      <input class="form-input" id="um-email" type="email" placeholder="email@example.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">รหัสผ่าน</label>
+      <input class="form-input" id="um-pass" type="password" placeholder="••••••••">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ประเภท</label>
+      <select class="form-select" id="um-role">
+        <option value="user">👤 ผู้ใช้ทั่วไป</option>
+        <option value="admin">🔑 ผู้ดูแลระบบ</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('user-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveUser()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Status Modal -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal" style="width:400px">
+    <div class="modal-title">
+      <span>📋 แก้ไขสถานะคำสั่งซื้อ</span>
+      <button class="modal-close" onclick="closeModal('order-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">เลขที่คำสั่งซื้อ</label>
+      <input class="form-input" id="om-id" readonly>
+    </div>
+    <div class="form-group">
+      <label class="form-label">สถานะ</label>
+      <select class="form-select" id="om-status">
+        <option value="pending">⏳ รอดำเนินการ</option>
+        <option value="shipping">🚚 กำลังจัดส่ง</option>
+        <option value="done">✅ สำเร็จ</option>
+        <option value="cancel">❌ ยกเลิก</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">หมายเหตุ</label>
+      <textarea class="form-textarea" id="om-note" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('order-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveOrderStatus()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon" id="confirm-icon">🗑️</div>
+    <div class="confirm-title" id="confirm-title">ยืนยันการลบ</div>
+    <div class="confirm-msg" id="confirm-msg">คุณแน่ใจว่าต้องการลบรายการนี้?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeModal('confirm-modal')">ยกเลิก</button>
+      <button class="btn btn-delete" id="confirm-btn">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══════════════ JAVASCRIPT ══════════════ -->
+<script>
+// ─── DATA STORE ───
+let db = {
+  products: [
+    { id: 1, name: 'แคคตัสจิ๋ว', price: 120, stock: 25, category: 'cactus', icon: '🌵', desc: 'แคคตัสน่ารักขนาดเล็ก เหมาะสำหรับตกแต่งโต๊ะ', sold: 42 },
+    { id: 2, name: 'ซัคคูเลนต์ชมพู', price: 85, stock: 40, category: 'succulent', icon: '🌸', desc: 'ซัคคูเลนต์สีชมพูสวยงาม', sold: 38 },
+    { id: 3, name: 'ต้นอโลเวร่า', price: 150, stock: 15, category: 'tropical', icon: '🌿', desc: 'ต้นอโลเวร่าขนาดกลาง มีประโยชน์มาก', sold: 29 },
+    { id: 4, name: 'กระถางดินเผา', price: 60, stock: 3, category: 'accessory', icon: '🪣', desc: 'กระถางดินเผาทรงกลม ขนาด 4 นิ้ว', sold: 55 },
+    { id: 5, name: 'แคคตัสสีฟ้า', price: 200, stock: 8, category: 'cactus', icon: '💙', desc: 'แคคตัสพิเศษสีฟ้าหายาก', sold: 12 },
+    { id: 6, name: 'ดินปลูกพิเศษ', price: 45, stock: 50, category: 'accessory', icon: '🌱', desc: 'ดินปลูกแคคตัสผสมพิเศษ 1 กก.', sold: 70 },
+    { id: 7, name: 'ต้นมะพร้าว', price: 350, stock: 6, category: 'tropical', icon: '🥥', desc: 'ต้นมะพร้าวแคระ', sold: 8 },
+    { id: 8, name: 'ซัคคูเลนต์ม่วง', price: 95, stock: 22, category: 'succulent', icon: '💜', desc: 'สวยงาม ดูแลง่าย', sold: 31 },
+  ],
+  orders: [
+    { id: 'ORD-001', customer: 'shi', items: 'แคคตัสจิ๋ว x2', total: 240, date: '20/02/2569', status: 'done', note: '' },
+    { id: 'ORD-002', customer: 'shi', items: 'ซัคคูเลนต์ชมพู x1', total: 85, date: '20/02/2569', status: 'shipping', note: '' },
+    { id: 'ORD-003', customer: 'guest', items: 'กระถางดินเผา x3', total: 180, date: '19/02/2569', status: 'pending', note: '' },
+    { id: 'ORD-004', customer: 'guest', items: 'ต้นอโลเวร่า x1', total: 150, date: '19/02/2569', status: 'done', note: '' },
+    { id: 'ORD-005', customer: 'shi', items: 'แคคตัสสีฟ้า x1', total: 200, date: '18/02/2569', status: 'cancel', note: 'ลูกค้ายกเลิก' },
+    { id: 'ORD-006', customer: 'guest', items: 'ดินปลูกพิเศษ x2', total: 90, date: '18/02/2569', status: 'shipping', note: '' },
+  ],
+  users: [
+    { id: 1, name: 'admin', email: 'admin@cactusshop.com', role: 'admin', date: '20/02/2569' },
+    { id: 2, name: 'shi', email: '68319100008@wpptech.ac.th', role: 'user', date: '20/02/2569' },
+  ],
+  nextProductId: 9,
+  nextUserId: 3,
+  nextOrderId: 7,
+};
+
+let editingProductId = null;
+let editingUserId = null;
+let editingOrderId = null;
+
+// ─── NAVIGATION ───
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const navMap = { dashboard:'Dashboard', products:'จัดการสินค้า', orders:'คำสั่งซื้อ', users:'จัดการผู้ใช้', settings:'ตั้งค่า' };
+  document.getElementById('breadcrumb-current').textContent = navMap[page];
+  event.currentTarget.classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'products') renderProducts();
+  if (page === 'orders') renderOrders();
+  if (page === 'users') renderUsers();
+}
+
+// ─── DASHBOARD ───
+function renderDashboard() {
+  const totalRevenue = db.orders.filter(o => o.status === 'done').reduce((s, o) => s + o.total, 0);
+  const todayOrders = db.orders.length;
+  document.getElementById('ds-total-revenue').textContent = '฿' + totalRevenue.toLocaleString();
+  document.getElementById('ds-orders').textContent = todayOrders;
+  document.getElementById('ds-products').textContent = db.products.length;
+  document.getElementById('ds-users').textContent = db.users.length;
+  document.getElementById('sc-revenue').textContent = '฿' + totalRevenue.toLocaleString();
+  document.getElementById('sc-orders').textContent = todayOrders;
+  document.getElementById('sc-products').textContent = db.products.length;
+  document.getElementById('sc-users').textContent = db.users.length;
+
+  // Bar chart
+  const days = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
+  const vals = [3200, 4800, 2900, 6100, 3800, 5200, 4100];
+  const max = Math.max(...vals);
+  document.getElementById('sales-chart').innerHTML = days.map((d, i) => `
+    <div class="bar-wrap">
+      <div class="bar" style="height:${(vals[i]/max*90)+10}px" title="฿${vals[i].toLocaleString()}"></div>
+      <div class="bar-label">${d}</div>
+    </div>`).join('');
+
+  // Recent orders mini
+  document.getElementById('recent-orders-mini').innerHTML = db.orders.slice(0,5).map(o => `
+    <div class="order-row-mini">
+      <span>${o.id}</span>
+      <span style="color:var(--text-muted)">${o.customer}</span>
+      <span class="mono" style="color:var(--accent)">฿${o.total}</span>
+      <span class="${badgeClass(o.status)} badge" style="font-size:10px">${statusLabel(o.status)}</span>
+    </div>`).join('');
+
+  // Top products
+  const sorted = [...db.products].sort((a, b) => b.sold - a.sold).slice(0, 5);
+  document.getElementById('top-products-table').innerHTML = sorted.map(p => `
+    <tr>
+      <td>${p.icon} ${p.name}</td>
+      <td class="mono" style="color:var(--accent)">฿${p.price}</td>
+      <td class="mono">${p.sold}</td>
+      <td class="mono" style="color:${p.stock <= 5 ? 'var(--danger)' : 'var(--text-dim)'}">${p.stock}</td>
+    </tr>`).join('');
+}
+
+// ─── PRODUCTS ───
+function renderProducts() {
+  const q = (document.getElementById('product-search')?.value || '').toLowerCase();
+  const list = db.products.filter(p => p.name.toLowerCase().includes(q) || p.category.includes(q));
+  const instock = db.products.filter(p => p.stock > 5).length;
+  const low = db.products.filter(p => p.stock <= 5).length;
+  document.getElementById('ph-total').textContent = db.products.length;
+  document.getElementById('ph-instock').textContent = instock;
+  document.getElementById('ph-lowstock').textContent = low;
+
+  if (list.length === 0) {
+    document.getElementById('product-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">📦</div><p>ไม่พบสินค้า</p></div>`;
+    return;
+  }
+  document.getElementById('product-grid').innerHTML = list.map(p => `
+    <div class="prod-card">
+      <div class="prod-img">${p.icon}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-price">฿${p.price.toLocaleString()}</div>
+        <div class="prod-stock" style="color:${p.stock<=5?'var(--danger)':'var(--text-muted)'}">
+          สต็อก: ${p.stock} ชิ้น ${p.stock<=5?'⚠️':''}
+        </div>
+        <div class="prod-actions">
+          <button class="btn btn-edit btn-sm" onclick="openProductModal(${p.id})">✏️ แก้ไข</button>
+          <button class="btn btn-delete btn-sm" onclick="confirmDelete('product',${p.id},'${p.name}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openProductModal(id = null) {
+  editingProductId = id;
+  document.getElementById('product-modal-title').textContent = id ? '✏️ แก้ไขสินค้า' : '➕ เพิ่มสินค้า';
+  if (id) {
+    const p = db.products.find(x => x.id === id);
+    document.getElementById('pm-name').value = p.name;
+    document.getElementById('pm-price').value = p.price;
+    document.getElementById('pm-stock').value = p.stock;
+    document.getElementById('pm-category').value = p.category;
+    document.getElementById('pm-desc').value = p.desc;
+    document.getElementById('pm-icon').value = p.icon;
+  } else {
+    ['pm-name','pm-price','pm-stock','pm-desc','pm-icon'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pm-icon').value = '🌵';
+  }
+  openModal('product-modal');
+}
+
+function saveProduct() {
+  const name = document.getElementById('pm-name').value.trim();
+  const price = parseInt(document.getElementById('pm-price').value);
+  const stock = parseInt(document.getElementById('pm-stock').value);
+  if (!name || isNaN(price) || isNaN(stock)) { showToast('กรุณากรอกข้อมูลให้ครบถ้วน','⚠️','danger'); return; }
+  const data = {
+    name, price, stock,
+    category: document.getElementById('pm-category').value,
+    desc: document.getElementById('pm-desc').value,
+    icon: document.getElementById('pm-icon').value || '📦',
+  };
+  if (editingProductId) {
+    const idx = db.products.findIndex(p => p.id === editingProductId);
+    db.products[idx] = { ...db.products[idx], ...data };
+    showToast('แก้ไขสินค้าเรียบร้อย','✅');
+  } else {
+    db.products.push({ id: db.nextProductId++, sold: 0, ...data });
+    showToast('เพิ่มสินค้าเรียบร้อย','✅');
+  }
+  closeModal('product-modal');
+  renderProducts();
+}
+
+// ─── ORDERS ───
+function statusLabel(s) {
+  return { pending:'รอดำเนินการ', shipping:'กำลังจัดส่ง', done:'สำเร็จ', cancel:'ยกเลิก' }[s] || s;
+}
+function badgeClass(s) {
+  return { pending:'badge badge-pending', shipping:'badge badge-shipping', done:'badge badge-done', cancel:'badge badge-cancel' }[s] || 'badge';
+}
+
+function renderOrders() {
+  const q = (document.getElementById('order-search')?.value || '').toLowerCase();
+  const f = document.getElementById('order-filter')?.value || '';
+  const list = db.orders.filter(o =>
+    (o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q)) &&
+    (!f || o.status === f)
+  );
+  const pending = db.orders.filter(o => o.status === 'pending').length;
+  const shipping = db.orders.filter(o => o.status === 'shipping').length;
+  const done = db.orders.filter(o => o.status === 'done').length;
+  document.getElementById('oh-total').textContent = db.orders.length;
+  document.getElementById('oh-pending').textContent = pending;
+  document.getElementById('oh-shipping').textContent = shipping;
+  document.getElementById('oh-done').textContent = done;
+
+  if (list.length === 0) {
+    document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">🛒</div><p>ไม่พบคำสั่งซื้อ</p></div></td></tr>`;
+    return;
+  }
+  document.getElementById('orders-tbody').innerHTML = list.map(o => `
+    <tr>
+      <td class="mono" style="color:var(--accent)">${o.id}</td>
+      <td>${o.customer}</td>
+      <td style="color:var(--text-dim);font-size:12.5px">${o.items}</td>
+      <td class="mono">฿${o.total.toLocaleString()}</td>
+      <td class="mono" style="color:var(--text-muted)">${o.date}</td>
+      <td><span class="${badgeClass(o.status)}">${statusLabel(o.status)}</span></td>
+      <td>
+        <div class="actions">
+          <button class="btn btn-edit btn-sm" onclick="openOrderModal('${o.id}')">✏️ สถานะ</button>
+          <button class="btn btn-delete btn-sm" onclick="confirmDelete('order','${o.id}','${o.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openOrderModal(id) {
+  const o = db.orders.find(x => x.id === id);
+  editingOrderId = id;
+  document.getElementById('om-id').value = o.id;
+  document.getElementById('om-status').value = o.status;
+  document.getElementById('om-note').value = o.note;
+  openModal('order-modal');
+}
+
+function saveOrderStatus() {
+  const idx = db.orders.findIndex(o => o.id === editingOrderId);
+  db.orders[idx].status = document.getElementById('om-status').value;
+  db.orders[idx].note = document.getElementById('om-note').value;
+  closeModal('order-modal');
+  renderOrders();
+  showToast('อัปเดตสถานะเรียบร้อย','✅');
+}
+
+// ─── USERS ───
+function renderUsers() {
+  const q = (document.getElementById('user-search')?.value || '').toLowerCase();
+  const list = db.users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  const admins = db.users.filter(u => u.role === 'admin').length;
+  document.getElementById('uh-total').textContent = db.users.length;
+  document.getElementById('uh-admin').textContent = admins;
+  document.getElementById('uh-user').textContent = db.users.length - admins;
+
+  if (list.length === 0) {
+    document.getElementById('users-tbody').innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">👥</div><p>ไม่พบผู้ใช้</p></div></td></tr>`;
+    return;
+  }
+  document.getElementById('users-tbody').innerHTML = list.map(u => `
+    <tr class="${u.role==='admin'?'admin-row':''}">
+      <td>
+        <div class="user-cell">
+          <div class="avatar ${u.role==='admin'?'av-admin':'av-user'}">${u.name[0].toUpperCase()}</div>
+          <div>
+            <div class="u-name">${u.name}</div>
+            <div class="u-id">#USR-${String(u.id).padStart(4,'0')}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-family:var(--mono);font-size:12.5px;color:var(--text-dim)">${u.email}</td>
+      <td><span class="badge ${u.role==='admin'?'badge-admin':'badge-user'}">${u.role==='admin'?'🔑 ผู้ดูแล':'👤 ผู้ใช้'}</span></td>
+      <td class="mono" style="color:var(--text-muted)">${u.date}</td>
+      <td>
+        <div class="actions">
+          <button class="btn btn-edit btn-sm" onclick="openUserModal(${u.id})">✏️ แก้ไข</button>
+          <button class="btn btn-delete btn-sm" onclick="confirmDelete('user',${u.id},'${u.name}')" ${u.name==='admin'?'disabled title="ไม่สามารถลบ admin หลักได้"':''}>🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openUserModal(id = null) {
+  editingUserId = id;
+  document.getElementById('user-modal-title').textContent = id ? '✏️ แก้ไขผู้ใช้' : '➕ เพิ่มผู้ใช้';
+  if (id) {
+    const u = db.users.find(x => x.id === id);
+    document.getElementById('um-name').value = u.name;
+    document.getElementById('um-email').value = u.email;
+    document.getElementById('um-pass').value = '';
+    document.getElementById('um-role').value = u.role;
+  } else {
+    ['um-name','um-email','um-pass'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('um-role').value = 'user';
+  }
+  openModal('user-modal');
+}
+
+function saveUser() {
+  const name = document.getElementById('um-name').value.trim();
+  const email = document.getElementById('um-email').value.trim();
+  if (!name || !email) { showToast('กรุณากรอกชื่อและอีเมล','⚠️','danger'); return; }
+  const data = { name, email, role: document.getElementById('um-role').value };
+  if (editingUserId) {
+    const idx = db.users.findIndex(u => u.id === editingUserId);
+    db.users[idx] = { ...db.users[idx], ...data };
+    showToast('แก้ไขผู้ใช้เรียบร้อย','✅');
+  } else {
+    if (db.users.find(u => u.name === name)) { showToast('ชื่อผู้ใช้นี้มีอยู่แล้ว','⚠️','danger'); return; }
+    const now = new Date();
+    const date = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()+543}`;
+    db.users.push({ id: db.nextUserId++, date, ...data });
+    showToast('เพิ่มผู้ใช้เรียบร้อย','✅');
+  }
+  closeModal('user-modal');
+  renderUsers();
+}
+
+// ─── CONFIRM DELETE ───
+function confirmDelete(type, id, label) {
+  const messages = {
+    product: `ต้องการลบสินค้า "${label}" ออกจากระบบ?`,
+    user: `ต้องการลบผู้ใช้ "${label}" ออกจากระบบ?`,
+    order: `ต้องการลบคำสั่งซื้อ "${label}" ออกจากระบบ?`,
+  };
+  document.getElementById('confirm-msg').textContent = messages[type];
+  document.getElementById('confirm-btn').onclick = () => doDelete(type, id);
+  openModal('confirm-modal');
+}
+
+function doDelete(type, id) {
+  if (type === 'product') { db.products = db.products.filter(p => p.id !== id); renderProducts(); }
+  if (type === 'user') { db.users = db.users.filter(u => u.id !== id); renderUsers(); }
+  if (type === 'order') { db.orders = db.orders.filter(o => o.id !== id); renderOrders(); }
+  closeModal('confirm-modal');
+  showToast('ลบเรียบร้อยแล้ว','✅');
+}
+
+// ─── SETTINGS ───
+function saveShopSettings() {
+  showToast('บันทึกข้อมูลร้านค้าเรียบร้อย','✅');
+}
+function saveOrderSettings() {
+  showToast('บันทึกการตั้งค่าเรียบร้อย','✅');
+}
+function changePassword() {
+  const np = document.getElementById('set-new-pass').value;
+  const cp = document.getElementById('set-confirm-pass').value;
+  if (!np) { showToast('กรุณากรอกรหัสผ่านใหม่','⚠️','danger'); return; }
+  if (np !== cp) { showToast('รหัสผ่านไม่ตรงกัน','⚠️','danger'); return; }
+  ['set-old-pass','set-new-pass','set-confirm-pass'].forEach(id => document.getElementById(id).value = '');
+  showToast('เปลี่ยนรหัสผ่านเรียบร้อย','✅');
+}
+
+// ─── MODAL HELPERS ───
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+});
+
+// ─── TOAST ───
+function showToast(msg, icon = 'ℹ️', type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ─── INIT ───
+renderDashboard();
+</script>
+</body>
+</html>

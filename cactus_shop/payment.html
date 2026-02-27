@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ชำระเงิน | 🌵 Cactus Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #c8e6c9 0%, #81c784 50%, #66bb6a 100%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem 5%;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #388e3c;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4caf50;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #388e3c;
+            padding-top: 1rem;
+            border-top: 2px solid #4caf50;
+            margin-top: 1rem;
+        }
+
+        .total-price {
+            color: #4caf50;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #388e3c;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .payment-method {
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method:hover {
+            border-color: #4caf50;
+            background: #f0fdf4;
+        }
+
+        .payment-method.selected {
+            border-color: #4caf50;
+            background: #d1fae5;
+        }
+
+        .payment-method i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #4caf50;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4caf50, #229954);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 2rem;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #229954, #1e8449);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .user-info {
+            background: #e8f5e9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info i {
+            font-size: 1.5rem;
+            color: #4caf50;
+        }
+
+        @media (max-width: 768px) {
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        .decorative-cactus {
+            position: fixed;
+            font-size: 4rem;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .decorative-cactus:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation: float-cactus 4s ease-in-out infinite;
+        }
+        .decorative-cactus:nth-child(2) {
+            top: 60%;
+            right: 8%;
+            animation: float-cactus 5s ease-in-out infinite 1s;
+        }
+        .decorative-cactus:nth-child(3) {
+            bottom: 15%;
+            left: 10%;
+            animation: float-cactus 6s ease-in-out infinite 2s;
+        }
+        @keyframes float-cactus {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-12px) rotate(5deg); }
+        }
+</style>
+</head>
+<body>
+    <div class="decorative-cactus">🌵</div>
+    <div class="decorative-cactus">🌵</div>
+    <div class="decorative-cactus">🌵</div>
+
+    <div class="header">
+        <h1>💳 ชำระเงิน</h1>
+        <p>กรอกข้อมูลเพื่อดำเนินการสั่งซื้อ</p>
+    </div>
+
+    <div class="container">
+        <div class="nav-buttons">
+            <button onclick="location.href='order.html'" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> กลับไปยังตะกร้า
+            </button>
+        </div>
+
+        <div class="payment-container">
+            <!-- ข้อมูลผู้ใช้ -->
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <div>
+                    <strong>ผู้สั่งซื้อ:</strong> <span id="username"></span>
+                </div>
+            </div>
+
+            <!-- สรุปคำสั่งซื้อ -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-receipt"></i> สรุปคำสั่งซื้อ</h2>
+                <div class="order-summary" id="order-summary"></div>
+            </div>
+
+            <!-- ข้อมูลการจัดส่ง -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-shipping-fast"></i> ข้อมูลการจัดส่ง</h2>
+                <form id="payment-form">
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล ผู้รับ *</label>
+                        <input type="text" id="recipient-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>เบอร์โทรศัพท์ *</label>
+                        <input type="tel" id="phone" required pattern="[0-9]{10}" placeholder="0812345678">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ที่อยู่จัดส่ง *</label>
+                        <textarea id="address" rows="4" required placeholder="บ้านเลขที่, หมู่บ้าน, ซอย, ถนน"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>จังหวัด *</label>
+                        <input type="text" id="province" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รหัสไปรษณีย์ *</label>
+                        <input type="text" id="zipcode" required pattern="[0-9]{5}" placeholder="10100">
+                    </div>
+
+                    <!-- วิธีการชำระเงิน -->
+                    <div class="section">
+                        <h2 class="section-title"><i class="fas fa-credit-card"></i> วิธีการชำระเงิน</h2>
+                        <div class="payment-methods">
+                            <div class="payment-method" onclick="selectPayment('credit-card')">
+                                <i class="fas fa-credit-card"></i>
+                                <div>บัตรเครดิต</div>
+                            </div>
+                            <div class="payment-method" onclick="selectPayment('bank-transfer')">
+                                <i class="fas fa-university"></i>
+                                <div>โอนเงิน</div>
+                            </div>
+                            <div class="payment-method" onclick="selectPayment('cod')">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div>เก็บเงินปลายทาง</div>
+                            </div>
+                            <div class="payment-method" onclick="selectPayment('promptpay')">
+                                <i class="fas fa-qrcode"></i>
+                                <div>พร้อมเพย์</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="payment-method" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check-circle"></i> ยืนยันการสั่งซื้อ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPaymentMethod = '';
+
+        // ตรวจสอบการล็อกอินทันทีเมื่อโหลดหน้า
+        function checkLoginOnLoad() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (!isLoggedIn) {
+                alert('⚠️ กรุณาเข้าสู่ระบบก่อนเข้าถึงหน้านี้\n\nคุณจะถูกนำไปยังหน้าล็อกอิน');
+                window.location.href = 'login.php';
+                return false;
+            }
+            return true;
+        }
+
+        // ตรวจสอบว่ามีสินค้าในตะกร้าหรือไม่
+        function checkCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            if (cart.length === 0) {
+                alert('⚠️ ไม่มีสินค้าในตะกร้า\nกรุณาเลือกสินค้าก่อนชำระเงิน');
+                window.location.href = 'products.html';
+                return false;
+            }
+            return true;
+        }
+
+        // แสดงสรุปคำสั่งซื้อ
+        function displayOrderSummary() {
+            if (!checkLoginOnLoad() || !checkCart()) return;
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const username = localStorage.getItem('username') || 'ผู้ใช้';
+            
+            document.getElementById('username').textContent = username;
+
+            let html = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                html += `
+                    <div class="order-item">
+                        <div>${item.name} x ${item.quantity}</div>
+                        <div>${itemTotal.toFixed(2)} บาท</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="order-total">
+                    <div>ยอดรวมทั้งหมด:</div>
+                    <div class="total-price">${total.toFixed(2)} บาท</div>
+                </div>
+            `;
+
+            document.getElementById('order-summary').innerHTML = html;
+        }
+
+        // เลือกวิธีการชำระเงิน
+        function selectPayment(method) {
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.payment-method').classList.add('selected');
+            selectedPaymentMethod = method;
+            document.getElementById('payment-method').value = method;
+        }
+
+        // ส่งฟอร์มชำระเงิน
+        document.getElementById('payment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!selectedPaymentMethod) {
+                alert('⚠️ กรุณาเลือกวิธีการชำระเงิน');
+                return;
+            }
+
+            const orderData = {
+                username: localStorage.getItem('username'),
+                cart: JSON.parse(localStorage.getItem('cart')),
+                recipient: document.getElementById('recipient-name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                province: document.getElementById('province').value,
+                zipcode: document.getElementById('zipcode').value,
+                paymentMethod: selectedPaymentMethod,
+                orderDate: new Date().toLocaleString('th-TH')
+            };
+
+            // บันทึกคำสั่งซื้อ
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(orderData);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            // ล้างตะกร้า
+            localStorage.removeItem('cart');
+
+            alert('✅ สั่งซื้อสำเร็จ!\n\nขอบคุณที่ใช้บริการ Cactus Shop\nเราจะดำเนินการจัดส่งสินค้าให้เร็วที่สุด');
+            
+            window.location.href = 'index.php';
+        });
+
+        // โหลดข้อมูลเมื่อเปิดหน้า
+        displayOrderSummary();
+    </script>
+</body>
+</html>
